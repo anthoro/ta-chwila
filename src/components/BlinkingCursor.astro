@@ -1,0 +1,28 @@
+---
+// BlinkingCursor.astro — the last thing on the page
+---
+<div class="cursor-wrap" aria-label="Terminal cursor" role="img">
+  <span class="cursor">█</span>
+</div>
+
+<style>
+  .cursor-wrap {
+    padding: 2rem 0 6rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .cursor {
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+    color: var(--color-phosphor);
+    text-shadow: 0 0 8px var(--color-phosphor);
+    animation: blink 1s step-end infinite;
+    line-height: 1;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+</style>

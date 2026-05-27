@@ -1,0 +1,108 @@
+---
+// Giscus.astro — one comment thread per article
+// TODO: configure Giscus repo — visit https://giscus.app to generate your config
+// Fill in GISCUS_REPO, GISCUS_REPO_ID, GISCUS_CATEGORY, GISCUS_CATEGORY_ID below
+// or set them as environment variables / in astro.config.mjs
+
+interface Props {
+  slug: string;
+  title: string;
+}
+
+const { slug, title } = Astro.props;
+
+// TODO: Replace these placeholder values with your actual Giscus configuration
+// Get them from https://giscus.app — connect your GitHub repo, enable Discussions
+const GISCUS_REPO = import.meta.env.GISCUS_REPO ?? 'anthoro/ta-chwila';         // TODO: your-username/your-repo
+const GISCUS_REPO_ID = import.meta.env.GISCUS_REPO_ID ?? 'REPLACE_WITH_REPO_ID'; // TODO: from giscus.app
+const GISCUS_CATEGORY = import.meta.env.GISCUS_CATEGORY ?? 'Announcements';      // TODO: your Discussion category
+const GISCUS_CATEGORY_ID = import.meta.env.GISCUS_CATEGORY_ID ?? 'REPLACE_WITH_CATEGORY_ID'; // TODO: from giscus.app
+const SITE_URL = Astro.site?.toString() ?? 'http://localhost:4321';
+---
+
+<div class="comments-section">
+  <p class="comments-header" aria-hidden="true">
+    ─────────────────────── ┤ COMMENTS ├ ───────────────────────
+  </p>
+
+  <div
+    class="giscus-wrapper"
+    data-repo={GISCUS_REPO}
+    data-repo-id={GISCUS_REPO_ID}
+    data-category={GISCUS_CATEGORY}
+    data-category-id={GISCUS_CATEGORY_ID}
+    data-term={slug}
+    data-site={SITE_URL}
+  >
+    <noscript>
+      <p class="giscus-noscript">
+        // Enable JavaScript to load the comment thread.<br />
+        // Or visit the discussion directly on GitHub.
+      </p>
+    </noscript>
+  </div>
+</div>
+
+<script>
+  // Lazy-load Giscus via IntersectionObserver — comments don't block initial paint
+  const wrappers = document.querySelectorAll<HTMLElement>('.giscus-wrapper');
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);
+
+        const el = entry.target as HTMLElement;
+        const script = document.createElement('script');
+        script.src = 'https://giscus.app/client.js';
+        script.async = true;
+        script.crossOrigin = 'anonymous';
+        script.setAttribute('data-repo', el.dataset.repo ?? '');
+        script.setAttribute('data-repo-id', el.dataset.repoId ?? '');
+        script.setAttribute('data-category', el.dataset.category ?? '');
+        script.setAttribute('data-category-id', el.dataset.categoryId ?? '');
+        script.setAttribute('data-mapping', 'specific');
+        script.setAttribute('data-term', el.dataset.term ?? '');
+        script.setAttribute('data-strict', '1');
+        script.setAttribute('data-reactions-enabled', '1');
+        script.setAttribute('data-emit-metadata', '0');
+        script.setAttribute('data-input-position', 'top');
+        script.setAttribute('data-theme', `${el.dataset.site}/giscus.css`);
+        script.setAttribute('data-lang', 'en');
+        script.setAttribute('data-loading', 'lazy');
+
+        el.appendChild(script);
+      });
+    },
+    { rootMargin: '200px' }
+  );
+
+  wrappers.forEach((w) => observer.observe(w));
+</script>
+
+<style>
+  .comments-section {
+    margin-top: 2.5rem;
+  }
+
+  .comments-header {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--color-dim);
+    margin: 0 0 1.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .giscus-wrapper {
+    min-height: 4rem;
+  }
+
+  .giscus-noscript {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-dim);
+    line-height: 1.7;
+  }
+</style>

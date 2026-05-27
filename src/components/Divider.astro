@@ -1,0 +1,23 @@
+---
+// Divider.astro — ASCII separator between articles
+---
+<div class="article-divider" aria-hidden="true">
+  <span class="divider-line">══════════════════════════════════════════════════════════════════════════════</span>
+</div>
+
+<style>
+  .article-divider {
+    margin: 5rem 0;
+    overflow: hidden;
+  }
+
+  .divider-line {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-dim);
+    letter-spacing: 0.05em;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+</style>

@@ -3,7 +3,17 @@
     "allow": [
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit -m 'Initial commit: basic HTML page *)"
+      "Bash(git commit -m 'Initial commit: basic HTML page *)",
+      "Bash(gh repo *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(npm --version)",
+      "Read(//opt/homebrew/bin/**)",
+      "Bash(brew list *)",
+      "Bash(nvm ls *)",
+      "Bash(brew --version)",
+      "Bash(brew install *)",
+      "Read(//private/tmp/ta-chwila/**)"
     ]
   }
 }

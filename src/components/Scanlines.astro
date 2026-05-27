@@ -1,0 +1,44 @@
+---
+// Scanlines.astro — fixed CRT overlay, pointer-events: none
+---
+<div class="scanlines" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<style>
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(0, 0, 0, 0.07) 3px,
+      rgba(0, 0, 0, 0.07) 4px
+    );
+    animation: flicker 6s ease-in-out infinite;
+  }
+
+  .vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 60%,
+      rgba(0, 0, 0, 0.45) 100%
+    );
+  }
+
+  @keyframes flicker {
+    0%   { opacity: 1.0; }
+    20%  { opacity: 0.98; }
+    40%  { opacity: 1.0; }
+    60%  { opacity: 0.97; }
+    80%  { opacity: 1.0; }
+    90%  { opacity: 0.98; }
+    100% { opacity: 1.0; }
+  }
+</style>
