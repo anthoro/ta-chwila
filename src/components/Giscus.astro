@@ -1,8 +1,6 @@
 ---
 // Giscus.astro — one comment thread per article
-// TODO: configure Giscus repo — visit https://giscus.app to generate your config
-// Fill in GISCUS_REPO, GISCUS_REPO_ID, GISCUS_CATEGORY, GISCUS_CATEGORY_ID below
-// or set them as environment variables / in astro.config.mjs
+// Backed by GitHub Discussions on anthoro/ta-chwila
 
 interface Props {
   slug: string;
@@ -11,12 +9,10 @@ interface Props {
 
 const { slug, title } = Astro.props;
 
-// TODO: Replace these placeholder values with your actual Giscus configuration
-// Get them from https://giscus.app — connect your GitHub repo, enable Discussions
-const GISCUS_REPO = import.meta.env.GISCUS_REPO ?? 'anthoro/ta-chwila';         // TODO: your-username/your-repo
-const GISCUS_REPO_ID = import.meta.env.GISCUS_REPO_ID ?? 'REPLACE_WITH_REPO_ID'; // TODO: from giscus.app
-const GISCUS_CATEGORY = import.meta.env.GISCUS_CATEGORY ?? 'Announcements';      // TODO: your Discussion category
-const GISCUS_CATEGORY_ID = import.meta.env.GISCUS_CATEGORY_ID ?? 'REPLACE_WITH_CATEGORY_ID'; // TODO: from giscus.app
+const GISCUS_REPO        = 'anthoro/ta-chwila';
+const GISCUS_REPO_ID     = 'R_kgDOSpEHiw';
+const GISCUS_CATEGORY    = 'Announcements';
+const GISCUS_CATEGORY_ID = 'DIC_kwDOSpEHi84C9_wy';
 const SITE_URL = Astro.site?.toString() ?? 'http://localhost:4321';
 ---
 
