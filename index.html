@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WORLD_TIME.EXE</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="/favicon.ico">
+  <meta name="color-scheme" content="dark">
+  <style>
+    :root {
+      --bg: #0a0f0a;
+      --fg: #33ff66;
+      --dim: #1f7a3a;
+      --accent: #ffb000;
+      --hot: #ff4d4d;
+      --scan: rgba(0, 0, 0, 0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "SF Mono", "Menlo", "Consolas", "Courier New", monospace;
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100%;
+      -webkit-font-smoothing: none;
+      font-smooth: never;
+      text-shadow: 0 0 1px rgba(51, 255, 102, 0.35);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 2px,
+        var(--scan) 3px,
+        var(--scan) 3px
+      );
+      z-index: 50;
+      mix-blend-mode: multiply;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(
+        ellipse at center,
+        transparent 55%,
+        rgba(0, 0, 0, 0.55) 100%
+      );
+      z-index: 51;
+    }
+
+    main {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+
+    header {
+      border: 1px solid var(--dim);
+      padding: 10px 14px;
+      margin-bottom: 18px;
+    }
+
+    header .prompt { color: var(--accent); }
+
+    header h1 {
+      display: inline;
+      font-size: inherit;
+      font-weight: normal;
+      margin: 0;
+      letter-spacing: 0.05em;
+    }
+
+    .status {
+      margin: 14px 0 22px;
+    }
+
+    .status div { margin: 2px 0; }
+    .status .label { color: var(--dim); }
+
+    .ok { color: var(--fg); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      table-layout: fixed;
+    }
+
+    caption {
+      text-align: left;
+      color: var(--dim);
+      padding: 6px 0;
+      letter-spacing: 0.08em;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 6px 8px;
+      border-bottom: 1px dashed var(--dim);
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--dim);
+      font-weight: normal;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--dim);
+    }
+
+    tbody tr.anchor {
+      color: var(--accent);
+      background: rgba(255, 176, 0, 0.06);
+    }
+
+    .col-city    { width: 38%; }
+    .col-current { width: 28%; }
+    .col-ref     { width: 34%; }
+
+    .time { font-variant-numeric: tabular-nums; }
+    .badge {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 0 4px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+    .badge.minus {
+      border-color: var(--hot);
+      color: var(--hot);
+    }
+
+    input[type="time"] {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 2px 6px;
+      font-family: inherit;
+      font-size: inherit;
+      font-variant-numeric: tabular-nums;
+      width: 8ch;
+      color-scheme: dark;
+      caret-color: var(--accent);
+    }
+    input[type="time"]:focus {
+      outline: none;
+      background: rgba(255, 176, 0, 0.1);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    input[type="time"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.7) sepia(1) saturate(6) hue-rotate(2deg);
+      opacity: 0.6;
+      cursor: pointer;
+    }
+
+    .controls {
+      margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button {
+      background: transparent;
+      color: var(--fg);
+      border: 1px solid var(--fg);
+      padding: 4px 10px;
+      font-family: inherit;
+      font-size: inherit;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+    }
+    button:hover, button:focus-visible {
+      background: rgba(51, 255, 102, 0.12);
+      outline: none;
+    }
+    button:active { background: rgba(51, 255, 102, 0.22); }
+
+    footer {
+      margin-top: 32px;
+      color: var(--dim);
+      font-size: 13px;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 0.6ch;
+      background: var(--fg);
+      color: var(--bg);
+      animation: blink 1s steps(1) infinite;
+      margin-left: 2px;
+    }
+    .cursor::before { content: "\00a0"; }
+
+    @keyframes blink {
+      50% { background: transparent; }
+    }
+
+    @media (max-width: 520px) {
+      body { font-size: 14px; }
+      main { padding: 16px 12px 48px; }
+      th, td { padding: 6px 4px; }
+      .col-city    { width: 40%; }
+      .col-current { width: 26%; }
+      .col-ref     { width: 34%; }
+      .badge { font-size: 11px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cursor { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="prompt">&gt;</span> <h1>WORLD_TIME.EXE</h1><span class="cursor" aria-hidden="true"></span>
+    </header>
+
+    <section class="status" aria-label="system status">
+      <div><span class="label">SYSTEM       :</span> <span class="ok">ONLINE</span></div>
+      <div><span class="label">ANCHOR NODE  :</span> KRAKOW / Europe/Warsaw</div>
+      <div><span class="label">LOCAL CLOCK  :</span> <span id="anchor-now" class="time">--:--:--</span></div>
+    </section>
+
+    <table aria-describedby="table-caption">
+      <caption id="table-caption">// CURRENT LOCAL TIME  ::  KRAKOW REFERENCE -&gt; LOCAL</caption>
+      <colgroup>
+        <col class="col-city">
+        <col class="col-current">
+        <col class="col-ref">
+      </colgroup>
+      <thead>
+        <tr>
+          <th scope="col">City</th>
+          <th scope="col">Current</th>
+          <th scope="col">Krakow &rarr; Local</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <div class="controls">
+      <button id="use-now" type="button">[ USE CURRENT TIME ]</button>
+      <span class="label" style="color: var(--dim);">// edit KRAKOW field to convert</span>
+    </div>
+
+    <footer>
+      <div>// tzdata via browser Intl / IANA</div>
+      <div>// no backend. no cookies. no telemetry.</div>
+    </footer>
+  </main>
+
+  <script>
+    const CITIES = [
+      { key: "krakow",  name: "KRAKOW",         zone: "Europe/Warsaw" },
+      { key: "boston",  name: "BOSTON",         zone: "America/New_York" },
+      { key: "hanoi",   name: "HANOI",          zone: "Asia/Ho_Chi_Minh" },
+      { key: "banga",   name: "BANGALORE",      zone: "Asia/Kolkata" },
+      { key: "sf",      name: "SAN FRANCISCO",  zone: "America/Los_Angeles" },
+      { key: "london",  name: "LONDON",         zone: "Europe/London" },
+      { key: "sydney",  name: "SYDNEY",         zone: "Australia/Sydney" }
+    ];
+
+    const ANCHOR = CITIES[0];
+
+    const pad = n => String(n).padStart(2, "0");
+
+    function partsIn(zone, date) {
+      const fmt = new Intl.DateTimeFormat("en-GB", {
+        timeZone: zone,
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hour12: false
+      });
+      const out = {};
+      for (const p of fmt.formatToParts(date)) {
+        if (p.type !== "literal") out[p.type] = p.value;
+      }
+      // "24" -> "00" quirk from some engines
+      if (out.hour === "24") out.hour = "00";
+      return out;
+    }
+
+    // Convert a wall-clock (Y-M-D H:M) in `zone` into a UTC Date.
+    function zonedWallToUTC(year, month, day, hour, minute, zone) {
+      const guess = Date.UTC(year, month - 1, day, hour, minute);
+      const p = partsIn(zone, new Date(guess));
+      const asZoneUTC = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute);
+      const offset = asZoneUTC - guess;
+      return new Date(guess - offset);
+    }
+
+    function dayOrdinal(p) {
+      // Julian-ish ordinal that compares safely across a small +/- window.
+      return (+p.year) * 400 + (+p.month) * 31 + (+p.day);
+    }
+
+    function renderRows() {
+      const tbody = document.getElementById("rows");
+      tbody.innerHTML = "";
+      for (const c of CITIES) {
+        const tr = document.createElement("tr");
+        tr.dataset.key = c.key;
+        if (c.key === ANCHOR.key) tr.classList.add("anchor");
+
+        const nameTd = document.createElement("td");
+        nameTd.textContent = c.name;
+        tr.appendChild(nameTd);
+
+        const curTd = document.createElement("td");
+        curTd.className = "time";
+        curTd.dataset.role = "current";
+        curTd.textContent = "--:--:--";
+        tr.appendChild(curTd);
+
+        const refTd = document.createElement("td");
+        refTd.dataset.role = "ref";
+        if (c.key === ANCHOR.key) {
+          const input = document.createElement("input");
+          input.type = "time";
+          input.id = "anchor-input";
+          input.step = "60";
+          input.value = "00:00";
+          input.setAttribute("aria-label", "Krakow reference time");
+          refTd.appendChild(input);
+        } else {
+          refTd.className = "time";
+          refTd.textContent = "--:--";
+        }
+        tr.appendChild(refTd);
+
+        tbody.appendChild(tr);
+      }
+    }
+
+    function tickCurrent() {
+      const now = new Date();
+      // Anchor status line
+      const ap = partsIn(ANCHOR.zone, now);
+      document.getElementById("anchor-now").textContent =
+        `${ap.hour}:${ap.minute}:${ap.second}`;
+
+      for (const c of CITIES) {
+        const p = partsIn(c.zone, now);
+        const cell = document.querySelector(
+          `tr[data-key="${c.key}"] td[data-role="current"]`
+        );
+        if (cell) cell.textContent = `${p.hour}:${p.minute}:${p.second}`;
+      }
+    }
+
+    function recomputeReference() {
+      const input = document.getElementById("anchor-input");
+      const [hStr, mStr] = (input.value || "00:00").split(":");
+      const h = Math.min(23, Math.max(0, parseInt(hStr, 10) || 0));
+      const m = Math.min(59, Math.max(0, parseInt(mStr, 10) || 0));
+
+      // Interpret the entered time as today's date IN KRAKOW.
+      const today = partsIn(ANCHOR.zone, new Date());
+      const anchorInstant = zonedWallToUTC(
+        +today.year, +today.month, +today.day, h, m, ANCHOR.zone
+      );
+
+      const anchorParts = partsIn(ANCHOR.zone, anchorInstant);
+      const anchorOrdinal = dayOrdinal(anchorParts);
+
+      for (const c of CITIES) {
+        if (c.key === ANCHOR.key) continue;
+        const p = partsIn(c.zone, anchorInstant);
+        const cell = document.querySelector(
+          `tr[data-key="${c.key}"] td[data-role="ref"]`
+        );
+        if (!cell) continue;
+
+        const diff = dayOrdinal(p) - anchorOrdinal;
+        let badge = "";
+        if (diff > 0) badge = ` <span class="badge">+1 DAY</span>`;
+        else if (diff < 0) badge = ` <span class="badge minus">-1 DAY</span>`;
+
+        cell.innerHTML = `${p.hour}:${p.minute}${badge}`;
+      }
+    }
+
+    function useCurrentAsAnchor() {
+      const p = partsIn(ANCHOR.zone, new Date());
+      const input = document.getElementById("anchor-input");
+      input.value = `${p.hour}:${p.minute}`;
+      recomputeReference();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderRows();
+      useCurrentAsAnchor();
+      tickCurrent();
+
+      document.getElementById("anchor-input")
+        .addEventListener("input", recomputeReference);
+      document.getElementById("use-now")
+        .addEventListener("click", useCurrentAsAnchor);
+
+      setInterval(tickCurrent, 1000);
+    });
+  </script>
+</body>
+</html>
